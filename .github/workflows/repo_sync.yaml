@@ -1,0 +1,86 @@
+# File: .github/workflows/repo-sync.yml
+name: sync-Repo-scripts
+on:
+  schedule:
+    - cron: '5 */8 * * *'
+  workflow_dispatch:
+#   watch:
+#     types: started
+#   push:
+#     branches: [ main ]
+  repository_dispatch:
+    types: sync-Repo-scripts
+jobs:
+  repo-sync-LXK9301:
+    env:
+      PAT: ${{ secrets.PAT }} #此处PAT需要申请，教程详见：https://www.jianshu.com/p/bb82b3ad1d11
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - name: sync LXK9301/jd_scripts
+        uses: repo-sync/github-sync@v2
+        if: env.PAT
+        with:
+          source_repo: "https://gitee.com/lxk0301/jd_scripts.git"
+          source_branch: "master"
+          destination_branch: "LXK9301"
+          github_token: ${{ secrets.PAT }}
+
+  repo-sync-lifeishard4me:
+    env:
+      PAT: ${{ secrets.PAT }} 
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - name: sync lifeishard4me/Actions
+        uses: repo-sync/github-sync@v2
+        if: env.PAT
+        with:
+          source_repo: "https://github.com/lifeishard4me/Actions.git"
+          source_branch: "main"
+          destination_branch: "lifeishard4me"
+          github_token: ${{ secrets.PAT }}
+      
+  repo-sync-MrRight:
+    env:
+      PAT: ${{ secrets.PAT }} 
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - name: sync MrRight/Scripts
+        uses: repo-sync/github-sync@v2
+        if: env.PAT
+        with:
+          source_repo: "https://gitlab.com/MrRight/Scripts.git"
+          source_branch: "master"
+          destination_branch: "MrRight"
+          github_token: ${{ secrets.PAT }}
+      
+  repo-sync-gitee:
+    env:
+      dst_key: ${{ secrets.GITEE_PRIVATE_KEY }} # 我自己同步到gitee使用，其他人可忽略
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      # 我自己同步到gitee使用，其他人可忽略
+      - name: sync github -> gitee
+        uses: Yikun/hub-mirror-action@master
+        if: env.dst_key
+        with:
+          src: github/HiJohnDoe
+          dst: gitee/whiteeyes
+          static_list: "jd_actions"
+          dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}
+          dst_token: ${{ secrets.GITEE_TOKEN }}
